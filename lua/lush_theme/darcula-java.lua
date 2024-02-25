@@ -45,7 +45,7 @@ return lush(function(injected_functions)
     local sym = injected_functions.sym
     return {
         Normal { fg = fg, bg = bg },
-        NormalFloat { fg = fg, bg = overbg },
+        NormalFloat { fg = fg, bg = nil },
         NormalNC { fg = fg, bg = bg.da(10) }, -- normal text in non-current windows
 
         Comment { fg = comment, gui = it },
@@ -68,7 +68,7 @@ return lush(function(injected_functions)
         Folded { fg = comment, bg = overbg },
         FoldColumn { LineNr },
 
-        Pmenu { bg = overbg },     -- Popup menu normal item
+        Pmenu { bg = nil },     -- Popup menu normal item
         PmenuSel { bg = mid },     -- selected item
         PmenuSbar { Pmenu },       -- scrollbar
         PmenuThumb { PmenuSel },   -- Thumb of the scrollbar
