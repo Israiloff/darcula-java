@@ -68,7 +68,7 @@ return lush(function(injected_functions)
         Folded { fg = comment, bg = overbg },
         FoldColumn { LineNr },
 
-        Pmenu { bg = nil },     -- Popup menu normal item
+        Pmenu { bg = nil },        -- Popup menu normal item
         PmenuSel { bg = mid },     -- selected item
         PmenuSbar { Pmenu },       -- scrollbar
         PmenuThumb { PmenuSel },   -- Thumb of the scrollbar
@@ -113,9 +113,9 @@ return lush(function(injected_functions)
         SpellRare { fg = yellow, gui = un },
 
         ---- Language Server Protocol highlight groups ---------------------------------
-        LspReferenceText { bg = mid },  -- highlighting "text" references
-        LspReferenceRead { bg = mid },  -- highlighting "read" references
-        LspReferenceWrite { bg = mid }, -- highlighting "write" references
+        LspReferenceText { bg = mid, fg = fg },  -- highlighting "text" references
+        LspReferenceRead { bg = mid, fg = fg },  -- highlighting "read" references
+        LspReferenceWrite { bg = mid, fg = fg }, -- highlighting "write" references
 
         -- base highlight groups. Other LspDiagnostic highlights link to these by default (except Underline)
         LspDiagnosticsDefaultError { fg = red },
