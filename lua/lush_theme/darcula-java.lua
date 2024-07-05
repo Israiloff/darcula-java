@@ -237,14 +237,15 @@ return lush(function(injected_functions)
         markdownLinkText { fg = fg },
 
         -- NvimTree
-        NvimTreeNormal { bg = treebg, fg = orange },
+        NvimTreeNormal { bg = treebg, fg = fg },
         NvimTreeIndentMarker { fg = hsl(204, 3, 32) },
         NvimTreeRootFolder { fg = folder },
         NvimTreeFolderIcon { fg = folder },
+        NvimTreeWinSeparator { fg = orange },
 
         -- WhichKey
-        WhichKeyFloat { fg = orange },
+        WhichKeyBorder { fg = orange },
 
-        ToggleTermFloat { fg = orange }
+        ToggleTermBorder { fg = orange }
     }
 end)
