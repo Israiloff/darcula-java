@@ -68,7 +68,7 @@ return lush(function(injected_functions)
         Folded { fg = comment, bg = overbg },
         FoldColumn { LineNr },
 
-        Pmenu { bg = nil },     -- Popup menu normal item
+        Pmenu { bg = nil },        -- Popup menu normal item
         PmenuSel { bg = mid },     -- selected item
         PmenuSbar { Pmenu },       -- scrollbar
         PmenuThumb { PmenuSel },   -- Thumb of the scrollbar
@@ -237,9 +237,14 @@ return lush(function(injected_functions)
         markdownLinkText { fg = fg },
 
         -- NvimTree
-        NvimTreeNormal { bg = treebg, fg = fg },
+        NvimTreeNormal { bg = treebg, fg = orange },
         NvimTreeIndentMarker { fg = hsl(204, 3, 32) },
         NvimTreeRootFolder { fg = folder },
         NvimTreeFolderIcon { fg = folder },
+
+        -- WhichKey
+        WhichKeyFloat { fg = orange },
+
+        ToggleTermFloat { fg = orange }
     }
 end)
