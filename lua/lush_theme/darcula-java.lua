@@ -46,7 +46,8 @@ return lush(function(injected_functions)
 
     return {
         Normal { fg = fg, bg = bg },
-        NormalFloat { fg = orange, bg = nil },
+        NormalFloat { fg = fg, bg = nil },
+        FloatBorder { fg = orange },
         NormalNC { fg = fg, bg = bg.da(10) }, -- normal text in non-current windows
 
         Comment { fg = comment, gui = it },
