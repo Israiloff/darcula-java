@@ -41,8 +41,6 @@ local blue       = hsl(215, 80, 63).li(10)
 local purple     = hsl(279, 30, 62)
 local magenta    = hsl(310, 40, 70)
 
-vim.api.nvim_set_hl(0, "FloatBorder", { fg = "#CD7832" })
-
 return lush(function(injected_functions)
     local sym = injected_functions.sym
 
