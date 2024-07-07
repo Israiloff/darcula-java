@@ -246,9 +246,6 @@ return lush(function(injected_functions)
         -- WhichKey
         WhichKeyBorder { fg = orange },
 
-        -- ToggleTerm
-        ToggleTermBorder { fg = orange },
-
         -- Telescope
         TelescopeBorder { fg = orange },
 
