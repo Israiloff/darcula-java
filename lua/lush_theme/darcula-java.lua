@@ -248,9 +248,5 @@ return lush(function(injected_functions)
 
         -- Telescope
         TelescopeBorder { fg = orange },
-
-        NormalFloat { fg = orange },
-
-        FloatBorder { fg = orange },
     }
 end)
