@@ -60,7 +60,7 @@ return lush(function(injected_functions)
         TermCursor { fg = bg, bg = fg },
         ColorColumn { bg = overbg },
         CursorColumn { bg = subtle },
-        CursorLine { CursorColumn },
+        CursorLine { bg = subtle },
         MatchParen { fg = pop, bg = mid },
 
         LineNr { fg = faded },
