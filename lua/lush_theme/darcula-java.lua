@@ -250,5 +250,11 @@ return lush(function(injected_functions)
 
         -- Telescope
         TelescopeBorder { fg = orange },
+
+        -- DAP
+        DapBreakpointHL { fg = red },
+        DapBreakpointRejectedHL { fg = red },
+        DapStoppedHL { fg = yellow },
+        DapLogPointHL { fg = orange },
     }
 end)
