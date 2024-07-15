@@ -256,5 +256,6 @@ return lush(function(injected_functions)
         DapBreakpointRejectedHL { fg = red },
         DapStoppedHL { fg = yellow },
         DapLogPointHL { fg = orange },
+        WinSeparator { fg = orange },
     }
 end)
