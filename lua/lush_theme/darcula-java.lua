@@ -257,5 +257,10 @@ return lush(function(injected_functions)
         DapStoppedHL { fg = yellow },
         DapLogPointHL { fg = orange },
         WinSeparator { fg = orange },
+
+        -- GitSigns
+        Removed { fg = red },
+        Added { fg = green },
+        Changed { fg = yellow },
     }
 end)
