@@ -264,8 +264,12 @@ return lush(function(injected_functions)
         Changed { fg = yellow },
 
         -- Lsp diagnostics
-        DiagnosticError { fg = red, guisp = red },
-        DiagnosticWarn { fg = yellow, guisp = yellow },
-        DiagnosticInfo { fg = fg, guisp = fg },
+        DiagnosticError { fg = red },
+        DiagnosticWarn { fg = yellow },
+        DiagnosticInfo { fg = fg },
+
+        DiagnosticUnderlineError { guisp = red },
+        DiagnosticUnderlineWarn { guisp = yellow },
+        DiagnosticUnderlineInfo { guisp = fg },
     }
 end)
