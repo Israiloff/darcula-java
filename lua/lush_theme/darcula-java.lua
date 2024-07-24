@@ -269,8 +269,8 @@ return lush(function(injected_functions)
         DiagnosticInfo { fg = fg },
 
         -- Lsp underlines
-        DiagnosticUnderlineError { sp = red, undercurl = true },
-        DiagnosticUnderlineWarn { sp = yellow },
-        DiagnosticUnderlineInfo { sp = fg },
+        DiagnosticUnderlineError { sp = red, undercurl = true, underline = false },
+        DiagnosticUnderlineWarn { sp = yellow, undercurl = true, underline = false },
+        DiagnosticUnderlineInfo { sp = fg, undercurl = true, underline = false },
     }
 end)
