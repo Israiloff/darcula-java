@@ -29,7 +29,6 @@ local pop        = c7
 
 -- Color palette
 local red        = hsl(1, 77, 59)
-local red_hex    = "#e74946"
 local salmon     = hsl(10, 90, 70)
 local orange     = hsl(27, 61, 50)
 local yellow     = hsl(37, 100, 71)
@@ -270,7 +269,7 @@ return lush(function(injected_functions)
         DiagnosticInfo { fg = fg },
 
         -- Lsp underlines
-        DiagnosticUnderlineError { sp = red_hex },
+        DiagnosticUnderlineError { sp = red, undercurl = true },
         DiagnosticUnderlineWarn { sp = yellow },
         DiagnosticUnderlineInfo { sp = fg },
     }
