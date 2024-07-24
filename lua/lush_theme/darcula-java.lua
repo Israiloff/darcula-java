@@ -267,9 +267,5 @@ return lush(function(injected_functions)
         DiagnosticError { fg = red },
         DiagnosticWarn { fg = yellow },
         DiagnosticInfo { fg = fg },
-
-        DiagnosticUnderlineError { guisp = red },
-        DiagnosticUnderlineWarn { guisp = yellow },
-        DiagnosticUnderlineInfo { guisp = fg },
     }
 end)
