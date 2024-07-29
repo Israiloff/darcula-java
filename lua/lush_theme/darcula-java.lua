@@ -41,6 +41,8 @@ local blue       = hsl(215, 80, 63).li(10)
 local purple     = hsl(279, 30, 62)
 local magenta    = hsl(310, 40, 70)
 
+local lightblue  = hsl(210, 50, 70)
+
 return lush(function(injected_functions)
     local sym = injected_functions.sym
 
@@ -266,11 +268,11 @@ return lush(function(injected_functions)
         -- Lsp diagnostics
         DiagnosticError { fg = red },
         DiagnosticWarn { fg = yellow },
-        DiagnosticInfo { fg = fg },
+        DiagnosticInfo { fg = lightblue },
 
         -- Lsp underlines
         DiagnosticUnderlineError { sp = red, undercurl = true, underline = false },
         DiagnosticUnderlineWarn { sp = yellow, undercurl = true, underline = false },
-        DiagnosticUnderlineInfo { sp = fg, undercurl = true, underline = false },
+        DiagnosticUnderlineInfo { sp = lightblue, undercurl = true, underline = false },
     }
 end)
