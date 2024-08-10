@@ -237,7 +237,7 @@ return lush(function(injected_functions)
         sym "@error" { fg = red },                -- syntax/parser errors.
 
         -- Java
-        sym "@function.method.call.java" { fg = fg },   -- method calls in Java
+        sym "@function.method.call.java" { fg = fg, priority = 140 },   -- method calls in Java
         sym "@function.method.java" { fg = blue },      -- method definitions in Java
         sym "@function.constructor.java" { fg = blue }, -- constructor definitions in Java
         sym "@function.annotation.java" { fg = fg },    -- annotations in Java
