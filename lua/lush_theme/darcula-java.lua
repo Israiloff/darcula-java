@@ -246,6 +246,7 @@ return lush(function(injected_functions)
         sym "@attribute.java" { fg = yellow },          -- annotations in Java
         sym "@variable.java" { fg = magenta },          -- variables in Java
         sym "@type.builtin.java" { fg = orange },       -- built-in types in Java
+        sym "@keyword.modifier.java" { fg = orange },   -- modifiers in Java
 
 
         HelpHyperTextJump { fg = yellow },
