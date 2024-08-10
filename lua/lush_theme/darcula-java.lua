@@ -141,7 +141,7 @@ return lush(function(injected_functions)
         String { fg = green },
 
         Identifier { fg = fg },
-        Function { fg = blue },
+        Function { fg = fg },
 
         Statement { fg = orange }, -- (preferred) any statement
         Conditional { Statement },
@@ -197,7 +197,7 @@ return lush(function(injected_functions)
         sym "@variable.builtin" { Constant, gui = it }, -- Variable names that are defined by the languages like `this` or `self`.
 
         sym "@function" { Function },
-        sym "@function.builtin" { Function },
+        sym "@function.builtin" { guifg = blue },
         sym "@function.macro" { Function }, -- macro defined fuctions: each `macro_rules` in Rust
         sym "@method" { Function },
         sym "@constructor" { fg = fg },     -- For constructor: `{}` in Lua and Java constructors.
