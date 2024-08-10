@@ -141,7 +141,7 @@ return lush(function(injected_functions)
         String { fg = green },
 
         Identifier { fg = fg },
-        Function { fg = fg },
+        Function { fg = yellow },
 
         Statement { fg = orange }, -- (preferred) any statement
         Conditional { Statement },
@@ -151,7 +151,7 @@ return lush(function(injected_functions)
         Keyword { Statement }, -- any other keyword
         Exception { fg = red },
 
-        PreProc { fg = yellow }, --  generic Preprocessor
+        PreProc { fg = orange }, --  generic Preprocessor
         Include { PreProc },     -- preprocessor #include
         Define { PreProc },      -- preprocessor #define
         Macro { PreProc },       -- same as Define
