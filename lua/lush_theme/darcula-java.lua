@@ -55,7 +55,7 @@ return lush(function(injected_functions)
         Comment { fg = comment, gui = it },
         Whitespace { fg = mid },   -- 'listchars'
         Conceal { fg = hsl(0, 0, 25) },
-        NonText { fg = faded },   -- characters that don't exist in the text
+        NonText { fg = faded },    -- characters that don't exist in the text
         SpecialKey { Whitespace }, -- Unprintable characters: text displayed differently from what it really is
 
         Cursor { fg = bg, bg = fg },
@@ -237,17 +237,20 @@ return lush(function(injected_functions)
         sym "@error" { fg = red },                -- syntax/parser errors.
 
         -- Java
-        sym "@lsp.type.method.call.java" { fg = fg }, -- method calls in Java
-        sym "@lsp.type.method.java" { fg = blue },      -- method definitions in Java
-        sym "@function.constructor.java" { fg = blue }, -- constructor definitions in Java
-        sym "@function.annotation.java" { fg = fg },  -- annotations in Java
-        sym "@constant.java" { fg = magenta },        -- constants in Java
-        sym "@type.java" { fg = fg },                 -- types in Java
-        sym "@lsp.type.interface.java" { fg = fg },   -- interfaces in Java
-        sym "@lsp.type.enum.java" { fg = fg },        -- enums in Java
-        sym "@attribute.java" { fg = yellow },  -- annotations in Java
-        sym "@lsp.type.class.java" { fg = fg }, -- classes in Java
-        sym "@lsp.type.modifier.java" { fg = orange }, -- modifiers in Java
+        sym "@lsp.type.method.call.java" { fg = fg },    -- method calls in Java
+        sym "@lsp.type.method.java" { fg = blue },       -- method definitions in Java
+        sym "@function.constructor.java" { fg = blue },  -- constructor definitions in Java
+        sym "@function.annotation.java" { fg = fg },     -- annotations in Java
+        sym "@constant.java" { fg = magenta },           -- constants in Java
+        sym "@type.java" { fg = fg },                    -- types in Java
+        sym "@lsp.type.interface.java" { fg = fg },      -- interfaces in Java
+        sym "@lsp.type.enum.java" { fg = fg },           -- enums in Java
+        sym "@attribute.java" { fg = yellow },           -- annotations in Java
+        sym "@lsp.type.class.java" { fg = fg },          -- classes in Java
+        sym "@lsp.type.modifier.java" { fg = orange },   -- modifiers in Java
+        sym "@variable.java" { fg = magenta },           -- variables in Java
+        sym "@type.builtin.java" { fg = orange },        -- built-in types in Java
+        sym "@lsp.type.annotation.java" { fg = yellow }, -- annotations in Java
 
 
         HelpHyperTextJump { fg = yellow },
