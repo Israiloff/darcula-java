@@ -246,6 +246,8 @@ return lush(function(injected_functions)
         sym "@lsp.type.interface.java" { fg = fg },   -- interfaces in Java
         sym "@lsp.type.enum.java" { fg = fg },        -- enums in Java
         sym "@attribute.java" { fg = yellow },  -- annotations in Java
+        sym "@lsp.type.class.java" { fg = fg }, -- classes in Java
+        sym "@lsp.type.modifier.java" { fg = orange }, -- modifiers in Java
 
 
         HelpHyperTextJump { fg = yellow },
