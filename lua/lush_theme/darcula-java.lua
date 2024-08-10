@@ -236,6 +236,17 @@ return lush(function(injected_functions)
 
         sym "@error" { fg = red },                -- syntax/parser errors.
 
+        -- Java
+        sym "@lsp.type.method.call.java" { fg = fg }, -- method calls in Java
+        sym "@lsp.type.method.java" { fg = blue },      -- method definitions in Java
+        sym "@function.constructor.java" { fg = blue }, -- constructor definitions in Java
+        sym "@function.annotation.java" { fg = fg },  -- annotations in Java
+        sym "@constant.java" { fg = magenta },        -- constants in Java
+        sym "@type.java" { fg = fg },                 -- types in Java
+        sym "@lsp.type.interface.java" { fg = fg },   -- interfaces in Java
+        sym "@lsp.type.enum.java" { fg = fg },        -- enums in Java
+        sym "@attribute.java" { fg = yellow },  -- annotations in Java
+
 
         HelpHyperTextJump { fg = yellow },
         markdownLinkText { fg = fg },
