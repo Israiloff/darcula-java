@@ -55,7 +55,7 @@ return lush(function(injected_functions)
         Comment { fg = comment, gui = it },
         Whitespace { fg = mid },   -- 'listchars'
         Conceal { fg = hsl(0, 0, 25) },
-        NonText { fg = treebg },   -- characters that don't exist in the text
+        NonText { fg = faded },   -- characters that don't exist in the text
         SpecialKey { Whitespace }, -- Unprintable characters: text displayed differently from what it really is
 
         Cursor { fg = bg, bg = fg },
