@@ -249,11 +249,11 @@ return lush(function(injected_functions)
         sym "@keyword.modifier.java" { fg = orange },   -- modifiers in Java
 
         -- LSP Java
-        sym "@lsp.type.method.call.java" { fg = fg },   -- method calls in Java
-        sym "@lsp.type.method.java" { fg = blue },      -- method definitions in Java
-        sym "@lsp.mod.constructor.java" { fg = blue },  -- constructor definitions in Java
-        sym "@lsp.type.annotation.java" { fg = fg },    -- annotations in Java
-        sym "@lsp.type.property.java" { fg = magenta }, -- constants in Java
+        sym "@lsp.type.method.call.java" { fg = fg },    -- method calls in Java
+        sym "@lsp.type.method.java" { fg = blue },       -- method definitions in Java
+        sym "@lsp.mod.constructor.java" { fg = blue },   -- constructor definitions in Java
+        sym "@lsp.type.annotation.java" { fg = yellow }, -- annotations in Java
+        sym "@lsp.type.property.java" { fg = magenta },  -- constants in Java
 
         HelpHyperTextJump { fg = yellow },
         markdownLinkText { fg = fg },
