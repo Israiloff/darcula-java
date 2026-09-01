@@ -1,290 +1,822 @@
-local lush       = require('lush')
-local hsl        = lush.hsl
+--
+--  darcula-java — IntelliJ IDEA "Darcula" for Neovim
+--
+--  Colour values come from the stock JetBrains Darcula colour scheme
+--  (Settings ▸ Editor ▸ Color Scheme) so that a Java buffer in Neovim reads
+--  exactly like the same file in IDEA. They live in `darcula-java.palette`;
+--  this file only maps them onto highlight groups.
+--
+--  Built with lush.nvim — run `:Lushify` in this buffer to live-edit it.
+--
 
--- GUI options
-local bf, it, un = 'bold', 'italic', 'underline'
+local lush = require('lush')
+local p    = require('darcula-java.palette')
 
--- Base colors
-local c0         = hsl(240, 1, 15)
-local c1         = c0.lighten(5)
-local c2         = c1.lighten(2)
-local c3         = c2.lighten(20).sa(10)
-local c4         = c3.lighten(10)
-local c5         = c4.lighten(20)
-local c6         = c5.lighten(70)
-local c7         = c6.lighten(80)
+-- GUI attribute shorthands
+local bf, it, un, st = 'bold', 'italic', 'underline', 'strikethrough'
 
--- Set base colors
-local bg         = c0 -- base background
-local overbg     = c1 -- other backgrounds
-local subtle     = c2 -- out-of-buffer elements
+-- Surfaces
+local bg, bg_dark, panel, panel_light = p.bg, p.bg_dark, p.panel, p.panel_light
+local gutter, cursorline, selection   = p.gutter, p.cursorline, p.selection
+local sel_soft, sel_dim               = p.sel_soft, p.sel_dim
+local border, separator, scrollbar    = p.border, p.separator, p.scrollbar
 
-local fg         = hsl(210, 7, 82)
-local comment    = hsl(0, 0, 54) -- comments
-local folder     = hsl(202, 9, 57)
-local treebg     = hsl(220, 3, 19)
-local mid        = c2.lighten(10) -- either foreground or background
-local faded      = fg.darken(45)  -- non-important text elements
-local pop        = c7
+-- Text
+local fg, fg_dim, fg_gutter = p.fg, p.fg_dim, p.fg_gutter
+local caret, whitespace     = p.caret, p.whitespace
 
--- Color palette
-local red        = hsl(1, 77, 59)
-local salmon     = hsl(10, 90, 70)
-local orange     = hsl(27, 61, 50)
-local yellow     = hsl(37, 100, 71)
+-- Syntax
+local keyword, number, str, comment = p.keyword, p.number, p.string, p.comment
+local doc, annotation, field        = p.doc, p.annotation, p.field
+local method, typaram, todo, link   = p.method, p.typaram, p.todo, p.link
 
-local green      = hsl(83, 27, 53)
-local teal       = hsl(150, 40, 50)
-local cyan       = hsl(180, 58, 38)
+-- Semantics
+local err, warn, info, hint, ok, typo = p.error, p.warn, p.info, p.hint, p.hint, p.typo
+local added, changed, removed         = p.added, p.changed, p.removed
 
-local blue       = hsl(215, 80, 63).li(10)
-local purple     = hsl(279, 30, 62)
-local magenta    = hsl(310, 40, 70)
+-- Diff / search / editor accents
+local diff_add, diff_del, diff_chg, diff_text = p.diff_add, p.diff_del, p.diff_chg, p.diff_text
+local search, search_cur, match_paren         = p.search, p.search_cur, p.match_paren
+local fold_bg, fold_fg                        = p.fold_bg, p.fold_fg
 
-local lightblue  = hsl(210, 50, 70)
-
+---@diagnostic disable: undefined-global
 return lush(function(injected_functions)
     local sym = injected_functions.sym
 
     return {
+        ---- Editor ------------------------------------------------------------
         Normal { fg = fg, bg = bg },
-        NormalFloat { fg = fg, bg = nil },
-        FloatBorder { fg = orange },
-        NormalNC { fg = fg, bg = bg.da(10) }, -- normal text in non-current windows
+        NormalNC { Normal },                                  -- text in non-current windows
+        NormalFloat { fg = fg, bg = panel },
+        FloatBorder { fg = border, bg = panel },
+        FloatTitle { fg = fg, bg = panel, gui = bf },
+        FloatFooter { fg = fg_dim, bg = panel },
+        EndOfBuffer { fg = bg },                              -- IDEA has no `~` filler
+        Cursor { fg = bg, bg = caret },
+        lCursor { Cursor },
+        CursorIM { Cursor },
+        TermCursor { Cursor },
+        Directory { fg = fg },
+        Title { fg = link, gui = bf },
 
-        Comment { fg = comment, gui = it },
-        Whitespace { fg = mid },   -- 'listchars'
-        Conceal { fg = hsl(0, 0, 25) },
-        NonText { fg = faded },    -- characters that don't exist in the text
-        SpecialKey { Whitespace }, -- Unprintable characters: text displayed differently from what it really is
+        ColorColumn { bg = gutter },
+        CursorColumn { bg = cursorline },
+        CursorLine { bg = cursorline },
+        Visual { bg = selection },
+        VisualNOS { bg = sel_dim },
+        MatchParen { bg = match_paren, gui = bf },
+        Conceal { fg = fg_dim },
+        NonText { fg = whitespace },
+        Whitespace { fg = whitespace },
+        SpecialKey { fg = whitespace },
+        SnippetTabstop { bg = sel_dim },
 
-        Cursor { fg = bg, bg = fg },
-        TermCursor { fg = bg, bg = fg },
-        ColorColumn { bg = overbg },
-        CursorColumn { bg = subtle },
-        CursorLine { bg = subtle },
-        MatchParen { fg = pop, bg = mid },
-
-        LineNr { fg = faded },
-        CursorLineNr { fg = orange },
+        LineNr { fg = fg_gutter, bg = gutter },
+        LineNrAbove { LineNr },
+        LineNrBelow { LineNr },
+        CursorLineNr { fg = fg, bg = gutter },
         SignColumn { LineNr },
-        VertSplit { fg = overbg, bg = nil }, -- column separating vertically split windows
-        Folded { fg = comment, bg = overbg },
+        CursorLineSign { LineNr },
         FoldColumn { LineNr },
+        CursorLineFold { LineNr },
+        Folded { fg = fold_fg, bg = fold_bg },
 
-        Pmenu { bg = nil },        -- Popup menu normal item
-        PmenuSel { bg = mid },     -- selected item
-        PmenuSbar { Pmenu },       -- scrollbar
-        PmenuThumb { PmenuSel },   -- Thumb of the scrollbar
-        WildMenu { Pmenu },        -- current match in 'wildmenu' completion
-        QuickFixLine { fg = pop }, -- Current |quickfix| item in the quickfix window
+        WinSeparator { fg = separator },
+        VertSplit { WinSeparator },
 
-        StatusLine { bg = subtle },
-        StatusLineNC { fg = faded, bg = overbg },
+        ---- Search ------------------------------------------------------------
+        Search { fg = fg, bg = search },
+        CurSearch { fg = fg, bg = search_cur },
+        IncSearch { CurSearch },
+        Substitute { fg = fg, bg = p.conflict },
 
-        TabLine { bg = mid },            -- not active tab page label
-        TabLineFill { bg = overbg },     -- where there are no labels
-        TabLineSel { bg = faded },       -- active tab page label
+        ---- Popup menu --------------------------------------------------------
+        Pmenu { fg = fg, bg = panel },
+        PmenuSel { fg = fg, bg = sel_soft },
+        PmenuKind { fg = field, bg = panel },
+        PmenuKindSel { fg = field, bg = sel_soft },
+        PmenuExtra { fg = fg_dim, bg = panel },
+        PmenuExtraSel { fg = fg_dim, bg = sel_soft },
+        PmenuSbar { bg = panel_light },
+        PmenuThumb { bg = scrollbar },
+        PmenuMatch { fg = link, bg = panel, gui = bf },
+        PmenuMatchSel { fg = link, bg = sel_soft, gui = bf },
+        ComplMatchIns { fg = fg_dim },
+        WildMenu { PmenuSel },
+        QuickFixLine { bg = sel_dim },
 
-        Search { fg = bg, bg = yellow }, -- Last search pattern highlighting (see 'hlsearch')
-        IncSearch { Search },            -- 'incsearch' highlighting; also used for the text replaced with ":s///c"
-        Substitute { Search },           -- |:substitute| replacement text highlighting
+        ---- Status / tab lines ------------------------------------------------
+        StatusLine { fg = fg, bg = panel },
+        StatusLineNC { fg = fg_dim, bg = bg_dark },
+        StatusLineTerm { StatusLine },
+        StatusLineTermNC { StatusLineNC },
+        WinBar { fg = fg, bg = bg },
+        WinBarNC { fg = fg_dim, bg = bg },
+        TabLine { fg = fg_dim, bg = panel },
+        TabLineSel { fg = fg, bg = panel_light },
+        TabLineFill { bg = bg_dark },
 
-        Visual { bg = c2 },              -- Visual mode selection
-        VisualNOS { bg = subtle },       -- Visual mode selection when Vim is "Not Owning the Selection".
+        ---- Messages ----------------------------------------------------------
+        MsgArea { fg = fg },
+        MsgSeparator { fg = separator },
+        ModeMsg { fg = fg, gui = bf },
+        MoreMsg { fg = added },
+        Question { fg = link },
+        ErrorMsg { fg = err },
+        WarningMsg { fg = warn },
 
-        ModeMsg { fg = faded },          -- 'showmode' message (e.g. "-- INSERT -- ")
-        MsgArea { Normal },              -- Area for messages and cmdline
-        MsgSeparator { fg = orange },    -- Separator for scrolled messages `msgsep` flag of 'display'
-        MoreMsg { fg = green },          -- |more-prompt|
-        Question { fg = green },         -- |hit-enter| prompt and yes/no questions
-        ErrorMsg { fg = red },           -- error messages on the command line
-        WarningMsg { fg = red },         -- warning messages
+        ---- Spelling (IDEA underlines typos with a green wave) ----------------
+        SpellBad { sp = typo, undercurl = true },
+        SpellCap { sp = warn, undercurl = true },
+        SpellLocal { sp = info, undercurl = true },
+        SpellRare { sp = field, undercurl = true },
 
-        Directory { fg = blue },         -- directory names (and other special names in listings)
-        Title { fg = blue },             -- titles for output from ":set all" ":autocmd" etc.
+        ---- Diff --------------------------------------------------------------
+        DiffAdd { bg = diff_add },
+        DiffChange { bg = diff_chg },
+        DiffDelete { fg = fg_dim, bg = diff_del },
+        DiffText { bg = diff_text },
+        Added { fg = added },
+        Changed { fg = changed },
+        Removed { fg = removed },
+        diffAdded { Added },
+        diffRemoved { Removed },
+        diffChanged { Changed },
+        diffNewFile { Added },
+        diffOldFile { Removed },
+        diffFile { fg = link },
+        diffLine { fg = comment },
+        diffIndexLine { fg = field },
 
-        DiffAdd { fg = green.da(20) },
-        DiffDelete { fg = red },
-        DiffChange { fg = yellow.da(20) },
-        DiffText { DiffChange, gui = un },
-        DiffAdded { DiffAdd },
-        DiffRemoved { DiffDelete },
+        ---- Legacy syntax groups (`:help group-name`) -------------------------
+        Comment { fg = comment },
 
-        SpellBad { fg = red, gui = un },
-        SpellCap { fg = magenta, gui = un },
-        SpellLocal { fg = orange, gui = un },
-        SpellRare { fg = yellow, gui = un },
-
-        ---- Language Server Protocol highlight groups ---------------------------------
-        LspReferenceText { bg = mid },  -- highlighting "text" references
-        LspReferenceRead { bg = mid },  -- highlighting "read" references
-        LspReferenceWrite { bg = mid }, -- highlighting "write" references
-
-        -- base highlight groups. Other LspDiagnostic highlights link to these by default (except Underline)
-        LspDiagnosticsDefaultError { fg = red },
-        LspDiagnosticsDefaultWarning { fg = yellow },
-        LspDiagnosticsDefaultInformation { fg = fg },
-        LspDiagnosticsDefaultHint { fg = teal },
-        LspDiagnosticsUnderlineError { gui = un },       -- underline "Error" diagnostics
-        LspDiagnosticsUnderlineWarning { gui = un },     -- underline "Warning" diagnostics
-        LspDiagnosticsUnderlineInformation { gui = un }, -- underline "Information" diagnostics
-        LspDiagnosticsUnderlineHint { gui = un },        -- underline "Hint" diagnostics
-
-        ---- Standard highlight groups -------------------------------------------------
-        -- See :help group-name
-        Constant { fg = orange },
-        Number { fg = blue },
+        Constant { fg = field },
+        String { fg = str },
+        Character { fg = str },
+        Number { fg = number },
         Float { Number },
-        Boolean { Constant },
-        Character { fg = orange },
-        String { fg = green },
+        Boolean { fg = keyword },
 
         Identifier { fg = fg },
-        Function { fg = yellow },
+        Function { fg = method },
 
-        Statement { fg = orange }, -- (preferred) any statement
+        Statement { fg = keyword },
         Conditional { Statement },
         Repeat { Statement },
-        Label { Statement },   -- case, default, etc.
+        Label { Statement },
         Operator { fg = fg },
-        Keyword { Statement }, -- any other keyword
-        Exception { fg = red },
+        Keyword { Statement },
+        Exception { Statement },
 
-        PreProc { fg = orange }, --  generic Preprocessor
-        Include { PreProc },     -- preprocessor #include
-        Define { PreProc },      -- preprocessor #define
-        Macro { PreProc },       -- same as Define
-        PreCondit { PreProc },   -- preprocessor #if, #else, #endif, etc.
+        PreProc { fg = keyword },
+        Include { PreProc },
+        Define { PreProc },
+        Macro { PreProc },
+        PreCondit { PreProc },
 
         Type { fg = fg },
-        StorageClass { fg = magenta }, -- static, register, volatile, etc.
-        Structure { fg = magenta },    -- struct, union, enum, etc.
-        Typedef { Type },
+        StorageClass { fg = keyword },
+        Structure { fg = keyword },
+        Typedef { fg = fg },
 
-        Special { fg = orange },    -- (preferred) any special symbol
-        SpecialChar { Special },    -- special character in a constant
-        Tag { fg = yellow },        -- you can use CTRL-] on this
-        Delimiter { Special },      -- character that needs attention
-        SpecialComment { Special }, -- special things inside a comment
-        Debug { Special },          -- debugging statements
+        Special { fg = keyword },
+        SpecialChar { fg = keyword, gui = bf },
+        Tag { fg = annotation },
+        Delimiter { fg = fg },
+        SpecialComment { fg = comment, gui = bf },
+        Debug { fg = err },
 
         Underlined { gui = un },
         Bold { gui = bf },
         Italic { gui = it },
-        Ignore { fg = faded }, --  left blank, hidden  |hl-Ignore|
-        Error { fg = red },    --  any erroneous construct
-        Todo { gui = bf },     --  anything that needs extra attention
+        Ignore { fg = fg_dim },
+        Error { fg = err },
+        Todo { fg = todo, gui = bf },
 
-        -- Treesitter
-        sym "@constant" { Constant },
-        sym "@constant.builtin" { Constant, gui = it }, -- constant that are built in the language: `nil` in Lua.
-        sym "@constant.macro" { Constant, gui = bf },   -- constants that are defined by macros: `NULL` in C.
-        sym "@number" { Number },
-        sym "@float" { Float },
-        sym "@boolean" { Boolean },
-        sym "@character" { Character },
-        sym "@string" { String },
-        sym "@string.regex" { Character },
-        sym "@string.escape" { Character },     -- escape characters within a string
-        sym "@symbol" { fg = green, gui = it }, -- For identifiers referring to symbols or atoms.
+        ---- Diagnostics -------------------------------------------------------
+        DiagnosticError { fg = err },
+        DiagnosticWarn { fg = warn },
+        DiagnosticInfo { fg = info },
+        DiagnosticHint { fg = hint },
+        DiagnosticOk { fg = ok },
 
-        sym "@field" { fg = purple },
-        sym "@property" { fg = purple },
-        sym "@parameter" { fg = fg },
-        sym "@parameter.reference" { fg = fg },
-        sym "@variable" { fg = fg },                    -- Any variable name that does not have another highlight
-        sym "@variable.builtin" { Constant, gui = it }, -- Variable names that are defined by the languages like `this` or `self`.
+        DiagnosticUnderlineError { sp = err, undercurl = true },
+        DiagnosticUnderlineWarn { sp = warn, undercurl = true },
+        DiagnosticUnderlineInfo { sp = info, undercurl = true },
+        DiagnosticUnderlineHint { sp = hint, undercurl = true },
+        DiagnosticUnderlineOk { sp = ok, undercurl = true },
 
-        sym "@function" { Function },
-        sym "@function.builtin" { Function },
-        sym "@function.macro" { Function }, -- macro defined fuctions: each `macro_rules` in Rust
-        sym "@method" { Function },
-        sym "@constructor" { fg = fg },     -- For constructor: `{}` in Lua and Java constructors.
-        sym "@keyword.function" { Keyword },
+        DiagnosticVirtualTextError { fg = p.vt_error_fg, bg = p.vt_error_bg },
+        DiagnosticVirtualTextWarn { fg = p.vt_warn_fg, bg = p.vt_warn_bg },
+        DiagnosticVirtualTextInfo { fg = p.vt_info_fg, bg = p.vt_info_bg },
+        DiagnosticVirtualTextHint { fg = p.vt_hint_fg, bg = p.vt_hint_bg },
+        DiagnosticVirtualTextOk { DiagnosticVirtualTextHint },
 
-        sym "@keyword" { Keyword },
-        sym "@conditional" { Conditional },
-        sym "@repeat" { Repeat },
-        sym "@label" { Label },
-        sym "@operator" { Operator },
-        sym "@exception" { Exception },
+        DiagnosticFloatingError { fg = err, bg = panel },
+        DiagnosticFloatingWarn { fg = warn, bg = panel },
+        DiagnosticFloatingInfo { fg = info, bg = panel },
+        DiagnosticFloatingHint { fg = hint, bg = panel },
+        DiagnosticFloatingOk { fg = ok, bg = panel },
 
-        sym "@namespace" { PreProc },  -- identifiers referring to modules and namespaces.
-        sym "@annotation" { PreProc }, -- C++/Dart attributes annotations that can be attached to the code to denote some kind of meta information
-        sym "@attribute" { PreProc },  -- Unstable
-        sym "@include" { PreProc },    -- includes: `#include` in C `use` or `extern crate` in Rust or `require` in Lua.
+        DiagnosticSignError { fg = err, bg = gutter },
+        DiagnosticSignWarn { fg = warn, bg = gutter },
+        DiagnosticSignInfo { fg = info, bg = gutter },
+        DiagnosticSignHint { fg = hint, bg = gutter },
+        DiagnosticSignOk { fg = ok, bg = gutter },
 
-        sym "@type" { Type },
-        sym "@type.builtin" { Type, gui = it },
+        DiagnosticDeprecated { fg = fg_dim, sp = fg_dim, gui = st },
+        DiagnosticUnnecessary { fg = fg_dim },
 
-        sym "@punctuation.delimiter" { Delimiter }, -- delimiters ie: `.`
-        sym "@punctuation.bracket" { fg = fg },     -- brackets and parens.
-        sym "@punctuation.special" { Delimiter },   -- special punctutation that does not fall in the catagories before.
+        ---- LSP ---------------------------------------------------------------
+        LspReferenceText { bg = p.ref_read },  -- identifier under caret
+        LspReferenceRead { bg = p.ref_read },
+        LspReferenceWrite { bg = p.ref_write }, -- write access under caret
+        LspInlayHint { fg = fg_dim, bg = gutter, gui = it },
+        LspCodeLens { fg = fg_dim, gui = it },
+        LspCodeLensSeparator { fg = whitespace },
+        LspSignatureActiveParameter { fg = method, gui = bf },
+        LspInfoBorder { FloatBorder },
 
-        sym "@comment" { Comment },
-        sym "@tag" { Tag },               -- Tags like html tag names.
-        sym "@tag.delimiter" { Special }, -- Tag delimiter like < > /
-        sym "@text" { fg = fg },
-        sym "@text.emphasis" { fg = fg, gui = it },
-        sym "@text.underline" { fg = fg, gui = un },
-        sym "@text.strike" { Comment, gui = un },
-        sym "@text.strong" { fg = fg, gui = bf },
-        sym "@text.title" { fg = orange },        -- Text that is part of a title
-        sym "@text.literal" { String },           -- Literal text
-        sym "@text.uri" { fg = green, gui = it }, -- Any URI like a link or email
+        -- Backwards-compatible names (Neovim < 0.8 style, still used by plugins)
+        LspDiagnosticsDefaultError { DiagnosticError },
+        LspDiagnosticsDefaultWarning { DiagnosticWarn },
+        LspDiagnosticsDefaultInformation { DiagnosticInfo },
+        LspDiagnosticsDefaultHint { DiagnosticHint },
+        LspDiagnosticsUnderlineError { DiagnosticUnderlineError },
+        LspDiagnosticsUnderlineWarning { DiagnosticUnderlineWarn },
+        LspDiagnosticsUnderlineInformation { DiagnosticUnderlineInfo },
+        LspDiagnosticsUnderlineHint { DiagnosticUnderlineHint },
 
-        sym "@error" { fg = red },                -- syntax/parser errors.
+        ---- Tree-sitter: variables & constants --------------------------------
+        sym '@variable' { fg = fg },
+        sym '@variable.builtin' { fg = keyword },          -- this, super
+        sym '@variable.parameter' { fg = fg },
+        sym '@variable.parameter.builtin' { fg = fg },
+        sym '@variable.member' { fg = field },             -- object fields
+        sym '@property' { fg = field },
+        sym '@constant' { fg = field, gui = it },          -- IDEA italicises statics
+        sym '@constant.builtin' { fg = keyword },
+        sym '@constant.macro' { fg = field, gui = it },
+        sym '@module' { fg = fg },
+        sym '@module.builtin' { fg = fg },
+        sym '@label' { fg = keyword },
 
-        -- Java
-        sym "@function.method.call.java" { fg = fg, priority = 140 }, -- method calls in Java
-        sym "@function.method.java" { fg = blue },                    -- method definitions in Java
-        sym "@function.constructor.java" { fg = blue },               -- constructor definitions in Java
-        sym "@function.annotation.java" { fg = fg },                  -- annotations in Java
-        sym "@constant.java" { fg = magenta },                        -- constants in Java
-        sym "@type.java" { fg = fg },                                 -- types in Java
-        sym "@attribute.java" { fg = yellow },                        -- annotations in Java
-        sym "@variable.java" { fg = magenta },                        -- variables in Java
-        sym "@type.builtin.java" { fg = orange },                     -- built-in types in Java
-        sym "@keyword.modifier.java" { fg = orange },                 -- modifiers in Java
-        sym "@variable.member.java" { fg = magenta },                 -- member variables in Java
+        ---- Tree-sitter: literals ---------------------------------------------
+        sym '@string' { fg = str },
+        sym '@string.documentation' { fg = doc },
+        sym '@string.regexp' { fg = p.regex },
+        sym '@string.escape' { fg = keyword, gui = bf },
+        sym '@string.special' { fg = keyword },
+        sym '@string.special.symbol' { fg = field },
+        sym '@string.special.path' { fg = str, gui = un },
+        sym '@string.special.url' { fg = link, gui = un },
+        sym '@character' { fg = str },
+        sym '@character.special' { fg = keyword, gui = bf },
+        sym '@boolean' { fg = keyword },
+        sym '@number' { fg = number },
+        sym '@number.float' { fg = number },
 
-        HelpHyperTextJump { fg = yellow },
-        markdownLinkText { fg = fg },
+        ---- Tree-sitter: types ------------------------------------------------
+        sym '@type' { fg = fg },                           -- IDEA leaves classes plain
+        sym '@type.builtin' { fg = keyword },              -- int, void, boolean
+        sym '@type.definition' { fg = fg },
+        sym '@attribute' { fg = annotation },
+        sym '@attribute.builtin' { fg = annotation },
 
-        -- NvimTree
-        NvimTreeNormal { bg = treebg, fg = fg },
-        NvimTreeIndentMarker { fg = hsl(204, 3, 32) },
-        NvimTreeRootFolder { fg = folder },
-        NvimTreeFolderIcon { fg = folder },
-        NvimTreeWinSeparator { fg = orange },
+        ---- Tree-sitter: functions --------------------------------------------
+        sym '@function' { fg = method },
+        sym '@function.builtin' { fg = keyword },
+        sym '@function.call' { fg = method },
+        sym '@function.macro' { fg = method },
+        sym '@function.method' { fg = method },
+        sym '@function.method.call' { fg = method },
+        sym '@constructor' { fg = fg },
+        sym '@operator' { fg = fg },
 
-        -- WhichKey
-        WhichKeyBorder { fg = orange },
+        ---- Tree-sitter: keywords ---------------------------------------------
+        sym '@keyword' { fg = keyword },
+        sym '@keyword.coroutine' { fg = keyword },
+        sym '@keyword.function' { fg = keyword },
+        sym '@keyword.operator' { fg = keyword },
+        sym '@keyword.import' { fg = keyword },
+        sym '@keyword.type' { fg = keyword },
+        sym '@keyword.modifier' { fg = keyword },
+        sym '@keyword.repeat' { fg = keyword },
+        sym '@keyword.return' { fg = keyword },
+        sym '@keyword.debug' { fg = keyword },
+        sym '@keyword.exception' { fg = keyword },
+        sym '@keyword.conditional' { fg = keyword },
+        sym '@keyword.conditional.ternary' { fg = fg },
+        sym '@keyword.directive' { fg = keyword },
+        sym '@keyword.directive.define' { fg = keyword },
 
-        -- Telescope
-        TelescopeBorder { fg = orange },
+        ---- Tree-sitter: punctuation ------------------------------------------
+        sym '@punctuation.delimiter' { fg = fg },
+        sym '@punctuation.bracket' { fg = fg },
+        sym '@punctuation.special' { fg = keyword },
 
-        -- DAP
-        DapBreakpointHL { fg = red },
-        DapBreakpointRejectedHL { fg = red },
-        DapStoppedHL { fg = yellow },
-        DapLogPointHL { fg = orange },
-        WinSeparator { fg = orange },
+        ---- Tree-sitter: comments ---------------------------------------------
+        sym '@comment' { fg = comment },
+        sym '@comment.documentation' { fg = doc, gui = it },
+        sym '@comment.error' { fg = bg, bg = err, gui = bf },
+        sym '@comment.warning' { fg = bg, bg = warn, gui = bf },
+        sym '@comment.todo' { fg = bg, bg = todo, gui = bf },
+        sym '@comment.note' { fg = bg, bg = hint, gui = bf },
 
-        -- GitSigns
-        Removed { fg = red },
-        Added { fg = green },
-        Changed { fg = yellow },
+        ---- Tree-sitter: markup (markdown, help, …) ---------------------------
+        sym '@markup.strong' { fg = fg, gui = bf },
+        sym '@markup.italic' { fg = fg, gui = it },
+        sym '@markup.strikethrough' { fg = fg, gui = st },
+        sym '@markup.underline' { fg = fg, gui = un },
+        sym '@markup.heading' { fg = method, gui = bf },
+        sym '@markup.heading.1' { fg = method, gui = bf },
+        sym '@markup.heading.2' { fg = method, gui = bf },
+        sym '@markup.heading.3' { fg = annotation, gui = bf },
+        sym '@markup.heading.4' { fg = annotation, gui = bf },
+        sym '@markup.heading.5' { fg = field, gui = bf },
+        sym '@markup.heading.6' { fg = field, gui = bf },
+        sym '@markup.quote' { fg = comment, gui = it },
+        sym '@markup.math' { fg = number },
+        sym '@markup.link' { fg = link },
+        sym '@markup.link.label' { fg = link },
+        sym '@markup.link.url' { fg = link, gui = un },
+        sym '@markup.raw' { fg = str },
+        sym '@markup.raw.block' { fg = str },
+        sym '@markup.list' { fg = keyword },
+        sym '@markup.list.checked' { fg = added },
+        sym '@markup.list.unchecked' { fg = fg_dim },
 
-        -- Lsp diagnostics
-        DiagnosticError { fg = red },
-        DiagnosticWarn { fg = yellow },
-        DiagnosticInfo { fg = lightblue },
+        ---- Tree-sitter: diff & tags ------------------------------------------
+        sym '@diff.plus' { fg = added },
+        sym '@diff.minus' { fg = removed },
+        sym '@diff.delta' { fg = changed },
+        sym '@tag' { fg = keyword },
+        sym '@tag.builtin' { fg = keyword },
+        sym '@tag.attribute' { fg = annotation },
+        sym '@tag.delimiter' { fg = fg },
 
-        -- Lsp underlines
-        DiagnosticUnderlineError { sp = red, undercurl = true, underline = false },
-        DiagnosticUnderlineWarn { sp = yellow, undercurl = true, underline = false },
-        DiagnosticUnderlineInfo { sp = lightblue, undercurl = true, underline = false },
+        ---- Tree-sitter: legacy capture aliases -------------------------------
+        -- A handful of queries still ship pre-0.10 capture names.
+        sym '@field' { fg = field },
+        sym '@parameter' { fg = fg },
+        sym '@namespace' { fg = fg },
+        sym '@method' { fg = method },
+        sym '@include' { fg = keyword },
+        sym '@annotation' { fg = annotation },
+        sym '@conditional' { fg = keyword },
+        sym '@repeat' { fg = keyword },
+        sym '@symbol' { fg = field },
+        sym '@float' { fg = number },
+        sym '@error' { fg = err },
+
+        ---- Java: IDEA-exact overrides ----------------------------------------
+        -- IDEA colours *declarations*, not call sites: `foo()` in
+        -- `obj.foo()` stays default text while `void foo()` is gold.
+        sym '@type.java' { fg = fg },                        -- class / ctor names
+        sym '@type.builtin.java' { fg = keyword },           -- int, boolean, void
+        sym '@variable.java' { fg = fg },                    -- locals
+        sym '@variable.member.java' { fg = field },          -- instance fields
+        sym '@variable.parameter.java' { fg = fg },
+        sym '@variable.builtin.java' { fg = keyword },       -- this, super
+        sym '@constant.java' { fg = field, gui = it },       -- static final
+        sym '@constant.builtin.java' { fg = keyword },       -- null, true, false
+        sym '@function.method.java' { fg = method },         -- declarations
+        sym '@function.method.call.java' { fg = fg },        -- call sites
+        sym '@function.builtin.java' { fg = keyword },       -- super(...)
+        sym '@attribute.java' { fg = annotation },           -- @Override
+        sym '@keyword.modifier.java' { fg = keyword },
+        sym '@comment.documentation.java' { fg = doc, gui = it },
+        sym '@string.escape.java' { fg = keyword, gui = bf },
+        sym '@label.java' { fg = fg },
+
+        ---- LSP semantic tokens ------------------------------------------------
+        -- Semantic tokens sit above tree-sitter (priority 125 vs 100), so these
+        -- have the final say once a language server attaches.
+        sym '@lsp.type.class' { fg = fg },
+        sym '@lsp.type.interface' { fg = fg },
+        sym '@lsp.type.enum' { fg = fg },
+        sym '@lsp.type.struct' { fg = fg },
+        sym '@lsp.type.type' { fg = fg },
+        sym '@lsp.type.typeParameter' { fg = typaram },
+        sym '@lsp.type.namespace' { fg = fg },
+        sym '@lsp.type.parameter' { fg = fg },
+        sym '@lsp.type.variable' { fg = fg },
+        sym '@lsp.type.property' { fg = field },
+        sym '@lsp.type.enumMember' { fg = field, gui = it },
+        sym '@lsp.type.annotation' { fg = annotation },
+        sym '@lsp.type.decorator' { fg = annotation },
+        sym '@lsp.type.event' { fg = field },
+        sym '@lsp.type.method' { fg = method },
+        -- IDEA's plain-call rule is Java-shaped, so it is scoped to Java;
+        -- the `declaration` modifier below still paints declarations gold.
+        sym '@lsp.type.method.java' { fg = fg },
+        sym '@lsp.type.function' { fg = method },
+        sym '@lsp.type.macro' { fg = keyword },
+        sym '@lsp.type.modifier' { fg = keyword },
+        sym '@lsp.type.keyword' { fg = keyword },
+        sym '@lsp.type.operator' { fg = fg },
+        sym '@lsp.type.number' { fg = number },
+        sym '@lsp.type.string' { fg = str },
+        sym '@lsp.type.comment' { fg = comment },
+
+        -- Modifiers add the IDEA emphasis on top.
+        sym '@lsp.typemod.method.declaration' { fg = method },
+        sym '@lsp.typemod.method.definition' { fg = method },
+        sym '@lsp.typemod.method.static' { gui = it },
+        sym '@lsp.typemod.function.declaration' { fg = method },
+        sym '@lsp.typemod.function.static' { gui = it },
+        sym '@lsp.typemod.property.static' { fg = field, gui = it },
+        sym '@lsp.typemod.property.readonly' { fg = field },
+        sym '@lsp.typemod.variable.static' { fg = field, gui = it },
+        sym '@lsp.typemod.variable.defaultLibrary' { fg = keyword },
+        sym '@lsp.typemod.class.abstract' { fg = fg, gui = it },
+        sym '@lsp.typemod.method.abstract' { gui = it },
+        sym '@lsp.mod.deprecated' { fg = fg_dim, sp = fg_dim, gui = st },
+
+        ---- Vim help & markdown builtins --------------------------------------
+        helpHyperTextJump { fg = link, gui = un },
+        HelpHyperTextJump { fg = link, gui = un },
+        helpSpecial { fg = annotation },
+        helpExample { fg = str },
+        markdownLinkText { fg = link, gui = un },
+        markdownUrl { fg = link, gui = un },
+        markdownCode { fg = str },
+        markdownCodeBlock { fg = str },
+
+        ---- nvim-cmp ----------------------------------------------------------
+        CmpItemAbbr { fg = fg },
+        CmpItemAbbrDeprecated { fg = fg_dim, gui = st },
+        CmpItemAbbrMatch { fg = link, gui = bf },
+        CmpItemAbbrMatchFuzzy { fg = link, gui = bf },
+        CmpItemMenu { fg = fg_dim, gui = it },
+        CmpItemKind { fg = field },
+        CmpItemKindText { fg = fg },
+        CmpItemKindMethod { fg = method },
+        CmpItemKindFunction { fg = method },
+        CmpItemKindConstructor { fg = method },
+        CmpItemKindField { fg = field },
+        CmpItemKindVariable { fg = fg },
+        CmpItemKindClass { fg = annotation },
+        CmpItemKindInterface { fg = annotation },
+        CmpItemKindModule { fg = keyword },
+        CmpItemKindProperty { fg = field },
+        CmpItemKindUnit { fg = number },
+        CmpItemKindValue { fg = number },
+        CmpItemKindEnum { fg = annotation },
+        CmpItemKindKeyword { fg = keyword },
+        CmpItemKindSnippet { fg = doc },
+        CmpItemKindColor { fg = field },
+        CmpItemKindFile { fg = fg },
+        CmpItemKindReference { fg = fg },
+        CmpItemKindFolder { fg = fg },
+        CmpItemKindEnumMember { fg = field },
+        CmpItemKindConstant { fg = field, gui = it },
+        CmpItemKindStruct { fg = annotation },
+        CmpItemKindEvent { fg = field },
+        CmpItemKindOperator { fg = fg },
+        CmpItemKindTypeParameter { fg = typaram },
+        CmpItemKindCopilot { fg = doc },
+
+        ---- Telescope ---------------------------------------------------------
+        TelescopeNormal { fg = fg, bg = panel },
+        TelescopeBorder { fg = border, bg = panel },
+        TelescopeTitle { fg = fg, bg = panel_light, gui = bf },
+        TelescopePromptNormal { fg = fg, bg = panel_light },
+        TelescopePromptBorder { fg = panel_light, bg = panel_light },
+        TelescopePromptTitle { fg = bg, bg = method, gui = bf },
+        TelescopePromptPrefix { fg = keyword, bg = panel_light },
+        TelescopePromptCounter { fg = fg_dim, bg = panel_light },
+        TelescopeResultsNormal { fg = fg, bg = panel },
+        TelescopeResultsBorder { fg = panel, bg = panel },
+        TelescopeResultsTitle { fg = panel, bg = panel },
+        TelescopePreviewNormal { fg = fg, bg = panel },
+        TelescopePreviewBorder { fg = panel, bg = panel },
+        TelescopePreviewTitle { fg = bg, bg = added, gui = bf },
+        TelescopeSelection { fg = fg, bg = sel_soft },
+        TelescopeSelectionCaret { fg = method, bg = sel_soft },
+        TelescopeMultiSelection { fg = field, bg = panel },
+        TelescopeMultiIcon { fg = method },
+        TelescopeMatching { fg = link, gui = bf },
+
+        ---- nvim-tree ---------------------------------------------------------
+        NvimTreeNormal { fg = fg, bg = panel },
+        NvimTreeNormalNC { fg = fg, bg = panel },
+        NvimTreeNormalFloat { fg = fg, bg = panel },
+        NvimTreeEndOfBuffer { fg = panel, bg = panel },
+        NvimTreeWinSeparator { fg = separator, bg = panel },
+        NvimTreeVertSplit { NvimTreeWinSeparator },
+        NvimTreeStatusLine { fg = fg, bg = panel },
+        NvimTreeStatusLineNC { fg = fg_dim, bg = panel },
+        NvimTreeCursorLine { bg = sel_soft },
+        NvimTreeCursorLineNr { fg = fg, bg = sel_soft },
+        NvimTreeRootFolder { fg = fg, gui = bf },
+        NvimTreeFolderIcon { fg = p.tree_icon },
+        NvimTreeFolderName { fg = fg },
+        NvimTreeOpenedFolderName { fg = fg, gui = bf },
+        NvimTreeEmptyFolderName { fg = fg_dim },
+        NvimTreeClosedFolderIcon { fg = p.tree_icon },
+        NvimTreeOpenedFolderIcon { fg = p.tree_icon },
+        NvimTreeSymlink { fg = link, gui = un },
+        NvimTreeSymlinkFolderName { fg = link },
+        NvimTreeExecFile { fg = added, gui = bf },
+        NvimTreeSpecialFile { fg = annotation },
+        NvimTreeImageFile { fg = field },
+        NvimTreeOpenedFile { fg = fg, gui = bf },
+        NvimTreeModifiedFile { fg = changed },
+        NvimTreeBookmark { fg = method },
+        NvimTreeIndentMarker { fg = whitespace },
+        NvimTreeLiveFilterPrefix { fg = method, gui = bf },
+        NvimTreeLiveFilterValue { fg = fg, gui = bf },
+        NvimTreeWindowPicker { fg = bg, bg = method, gui = bf },
+        NvimTreeGitNewIcon { fg = added },
+        NvimTreeGitDirtyIcon { fg = changed },
+        NvimTreeGitStagedIcon { fg = added },
+        NvimTreeGitMergeIcon { fg = warn },
+        NvimTreeGitRenamedIcon { fg = changed },
+        NvimTreeGitDeletedIcon { fg = removed },
+        NvimTreeGitIgnoredIcon { fg = fg_dim },
+        NvimTreeGitFileNewHL { fg = added },
+        NvimTreeGitFileDirtyHL { fg = changed },
+        NvimTreeGitFileStagedHL { fg = added },
+        NvimTreeGitFileMergeHL { fg = warn },
+        NvimTreeGitFileRenamedHL { fg = changed },
+        NvimTreeGitFileDeletedHL { fg = removed },
+        NvimTreeGitFileIgnoredHL { fg = fg_dim },
+
+        ---- lir.nvim ----------------------------------------------------------
+        LirFloatNormal { fg = fg, bg = panel },
+        LirFloatBorder { fg = border, bg = panel },
+        LirDir { fg = fg, gui = bf },
+        LirSymLink { fg = link, gui = un },
+        LirEmptyDirText { fg = fg_dim },
+
+        ---- bufferline --------------------------------------------------------
+        BufferLineFill { bg = bg_dark },
+        BufferLineBackground { fg = fg_dim, bg = panel },
+        BufferLineBufferVisible { fg = fg_dim, bg = panel },
+        BufferLineBufferSelected { fg = fg, bg = panel_light, gui = bf },
+        BufferLineTab { fg = fg_dim, bg = panel },
+        BufferLineTabSelected { fg = fg, bg = panel_light, gui = bf },
+        BufferLineTabSeparator { fg = bg_dark, bg = panel },
+        BufferLineTabSeparatorSelected { fg = bg_dark, bg = panel_light },
+        BufferLineTabClose { fg = removed, bg = panel },
+        BufferLineSeparator { fg = bg_dark, bg = panel },
+        BufferLineSeparatorVisible { fg = bg_dark, bg = panel },
+        BufferLineSeparatorSelected { fg = bg_dark, bg = panel_light },
+        BufferLineIndicatorSelected { fg = method, bg = panel_light },
+        BufferLineIndicatorVisible { fg = panel, bg = panel },
+        BufferLineModified { fg = changed, bg = panel },
+        BufferLineModifiedVisible { fg = changed, bg = panel },
+        BufferLineModifiedSelected { fg = changed, bg = panel_light },
+        BufferLineCloseButton { fg = fg_dim, bg = panel },
+        BufferLineCloseButtonVisible { fg = fg_dim, bg = panel },
+        BufferLineCloseButtonSelected { fg = removed, bg = panel_light },
+        BufferLineDuplicate { fg = fg_dim, bg = panel, gui = it },
+        BufferLineDuplicateVisible { fg = fg_dim, bg = panel, gui = it },
+        BufferLineDuplicateSelected { fg = fg, bg = panel_light, gui = it },
+        BufferLineNumbers { fg = fg_dim, bg = panel },
+        BufferLineNumbersVisible { fg = fg_dim, bg = panel },
+        BufferLineNumbersSelected { fg = fg, bg = panel_light },
+        BufferLinePick { fg = method, bg = panel, gui = bf },
+        BufferLinePickVisible { fg = method, bg = panel, gui = bf },
+        BufferLinePickSelected { fg = method, bg = panel_light, gui = bf },
+        BufferLineOffsetSeparator { fg = separator, bg = bg_dark },
+        BufferLineTruncMarker { fg = fg_dim, bg = panel },
+        BufferLineError { fg = err, bg = panel },
+        BufferLineErrorVisible { fg = err, bg = panel },
+        BufferLineErrorSelected { fg = err, bg = panel_light },
+        BufferLineWarning { fg = warn, bg = panel },
+        BufferLineWarningVisible { fg = warn, bg = panel },
+        BufferLineWarningSelected { fg = warn, bg = panel_light },
+        BufferLineInfo { fg = info, bg = panel },
+        BufferLineInfoVisible { fg = info, bg = panel },
+        BufferLineInfoSelected { fg = info, bg = panel_light },
+        BufferLineHint { fg = hint, bg = panel },
+        BufferLineHintVisible { fg = hint, bg = panel },
+        BufferLineHintSelected { fg = hint, bg = panel_light },
+
+        ---- gitsigns ----------------------------------------------------------
+        GitSignsAdd { fg = added, bg = gutter },
+        GitSignsChange { fg = changed, bg = gutter },
+        GitSignsDelete { fg = removed, bg = gutter },
+        GitSignsTopdelete { fg = removed, bg = gutter },
+        GitSignsChangedelete { fg = warn, bg = gutter },
+        GitSignsUntracked { fg = fg_dim, bg = gutter },
+        GitSignsAddNr { fg = added, bg = gutter },
+        GitSignsChangeNr { fg = changed, bg = gutter },
+        GitSignsDeleteNr { fg = removed, bg = gutter },
+        GitSignsAddLn { bg = diff_add },
+        GitSignsChangeLn { bg = diff_chg },
+        GitSignsDeleteLn { bg = diff_del },
+        GitSignsAddInline { bg = p.diff_add_in },
+        GitSignsChangeInline { bg = diff_text },
+        GitSignsDeleteInline { bg = p.diff_del_in },
+        GitSignsAddPreview { bg = diff_add },
+        GitSignsDeletePreview { bg = diff_del },
+        GitSignsCurrentLineBlame { fg = fg_dim, gui = it },
+
+        ---- indent-blankline (v3) ---------------------------------------------
+        IblIndent { fg = p.indent },
+        IblWhitespace { fg = p.indent },
+        IblScope { fg = p.indent_scope },
+        -- v2 names
+        IndentBlanklineChar { fg = p.indent },
+        IndentBlanklineContextChar { fg = p.indent_scope },
+
+        ---- todo-comments -----------------------------------------------------
+        TodoBgTODO { fg = bg, bg = todo, gui = bf },
+        TodoFgTODO { fg = todo },
+        TodoSignTODO { fg = todo, bg = gutter },
+        TodoBgFIX { fg = bg, bg = err, gui = bf },
+        TodoFgFIX { fg = err },
+        TodoSignFIX { fg = err, bg = gutter },
+        TodoBgHACK { fg = bg, bg = warn, gui = bf },
+        TodoFgHACK { fg = warn },
+        TodoSignHACK { fg = warn, bg = gutter },
+        TodoBgWARN { fg = bg, bg = warn, gui = bf },
+        TodoFgWARN { fg = warn },
+        TodoSignWARN { fg = warn, bg = gutter },
+        TodoBgPERF { fg = bg, bg = field, gui = bf },
+        TodoFgPERF { fg = field },
+        TodoSignPERF { fg = field, bg = gutter },
+        TodoBgNOTE { fg = bg, bg = hint, gui = bf },
+        TodoFgNOTE { fg = hint },
+        TodoSignNOTE { fg = hint, bg = gutter },
+        TodoBgTEST { fg = bg, bg = info, gui = bf },
+        TodoFgTEST { fg = info },
+        TodoSignTEST { fg = info, bg = gutter },
+
+        ---- which-key ---------------------------------------------------------
+        WhichKey { fg = method, gui = bf },
+        WhichKeyGroup { fg = link },
+        WhichKeyDesc { fg = fg },
+        WhichKeySeparator { fg = fg_dim },
+        WhichKeyValue { fg = fg_dim },
+        WhichKeyFloat { bg = panel },
+        WhichKeyBorder { fg = border, bg = panel },
+        WhichKeyNormal { fg = fg, bg = panel },
+        WhichKeyTitle { fg = fg, bg = panel_light, gui = bf },
+        WhichKeyIcon { fg = field },
+        WhichKeyIconAzure { fg = info },
+        WhichKeyIconBlue { fg = link },
+        WhichKeyIconCyan { fg = typaram },
+        WhichKeyIconGreen { fg = added },
+        WhichKeyIconGrey { fg = fg_dim },
+        WhichKeyIconOrange { fg = keyword },
+        WhichKeyIconPurple { fg = field },
+        WhichKeyIconRed { fg = err },
+        WhichKeyIconYellow { fg = method },
+
+        ---- nvim-dap / nvim-dap-ui --------------------------------------------
+        DapBreakpoint { fg = err, bg = gutter },
+        DapBreakpointCondition { fg = keyword, bg = gutter },
+        DapBreakpointRejected { fg = fg_dim, bg = gutter },
+        DapLogPoint { fg = info, bg = gutter },
+        DapStopped { fg = method, bg = gutter },
+        DapStoppedLine { bg = p.dap_stopped },
+        -- sign highlight names used by this colourscheme's own sign_define docs
+        DapBreakpointHL { DapBreakpoint },
+        DapBreakpointConditionHL { DapBreakpointCondition },
+        DapBreakpointRejectedHL { DapBreakpointRejected },
+        DapLogPointHL { DapLogPoint },
+        DapStoppedHL { DapStopped },
+
+        DapUINormal { fg = fg, bg = panel },
+        DapUIVariable { fg = fg },
+        DapUIScope { fg = method },
+        DapUIType { fg = typaram },
+        DapUIValue { fg = fg },
+        DapUIModifiedValue { fg = method, gui = bf },
+        DapUIDecoration { fg = border },
+        DapUIThread { fg = added },
+        DapUIStoppedThread { fg = method },
+        DapUIFrameName { fg = fg },
+        DapUISource { fg = field },
+        DapUILineNumber { fg = fg_gutter },
+        DapUIFloatNormal { fg = fg, bg = panel },
+        DapUIFloatBorder { fg = border, bg = panel },
+        DapUIWatchesEmpty { fg = fg_dim },
+        DapUIWatchesValue { fg = added },
+        DapUIWatchesError { fg = err },
+        DapUIBreakpointsPath { fg = link },
+        DapUIBreakpointsInfo { fg = added },
+        DapUIBreakpointsCurrentLine { fg = method, gui = bf },
+        DapUIBreakpointsLine { fg = fg_gutter },
+        DapUIBreakpointsDisabledLine { fg = fg_dim },
+        DapUIStepOver { fg = link },
+        DapUIStepInto { fg = link },
+        DapUIStepBack { fg = link },
+        DapUIStepOut { fg = link },
+        DapUIStop { fg = err },
+        DapUIPlayPause { fg = added },
+        DapUIRestart { fg = added },
+        DapUIUnavailable { fg = fg_dim },
+        DapUIWinSelect { fg = method, gui = bf },
+        DapUIEndofBuffer { fg = panel, bg = panel },
+
+        ---- nvim-navic (winbar breadcrumbs) -----------------------------------
+        NavicText { fg = fg },
+        NavicSeparator { fg = fg_dim },
+        NavicIconsFile { fg = fg },
+        NavicIconsModule { fg = keyword },
+        NavicIconsNamespace { fg = fg },
+        NavicIconsPackage { fg = keyword },
+        NavicIconsClass { fg = annotation },
+        NavicIconsMethod { fg = method },
+        NavicIconsProperty { fg = field },
+        NavicIconsField { fg = field },
+        NavicIconsConstructor { fg = method },
+        NavicIconsEnum { fg = annotation },
+        NavicIconsInterface { fg = annotation },
+        NavicIconsFunction { fg = method },
+        NavicIconsVariable { fg = fg },
+        NavicIconsConstant { fg = field, gui = it },
+        NavicIconsString { fg = str },
+        NavicIconsNumber { fg = number },
+        NavicIconsBoolean { fg = keyword },
+        NavicIconsArray { fg = fg },
+        NavicIconsObject { fg = fg },
+        NavicIconsKey { fg = field },
+        NavicIconsNull { fg = keyword },
+        NavicIconsEnumMember { fg = field },
+        NavicIconsStruct { fg = annotation },
+        NavicIconsEvent { fg = field },
+        NavicIconsOperator { fg = fg },
+        NavicIconsTypeParameter { fg = typaram },
+
+        ---- toggleterm --------------------------------------------------------
+        ToggleTerm1FloatBorder { fg = border, bg = panel },
+        ToggleTermNormal { fg = fg, bg = bg },
+        ToggleTermNormalFloat { fg = fg, bg = panel },
+        ToggleTermFloatBorder { fg = border, bg = panel },
+
+        ---- nvim-scrollbar ----------------------------------------------------
+        ScrollbarHandle { bg = panel_light },
+        ScrollbarCursorHandle { bg = panel_light },
+        ScrollbarCursor { fg = caret },
+        ScrollbarError { fg = err },
+        ScrollbarErrorHandle { fg = err, bg = panel_light },
+        ScrollbarWarn { fg = warn },
+        ScrollbarWarnHandle { fg = warn, bg = panel_light },
+        ScrollbarInfo { fg = info },
+        ScrollbarInfoHandle { fg = info, bg = panel_light },
+        ScrollbarHint { fg = hint },
+        ScrollbarHintHandle { fg = hint, bg = panel_light },
+        ScrollbarMisc { fg = field },
+        ScrollbarMiscHandle { fg = field, bg = panel_light },
+        ScrollbarSearch { fg = search_cur },
+        ScrollbarSearchHandle { fg = search_cur, bg = panel_light },
+        ScrollbarGitAdd { fg = added },
+        ScrollbarGitAddHandle { fg = added, bg = panel_light },
+        ScrollbarGitChange { fg = changed },
+        ScrollbarGitChangeHandle { fg = changed, bg = panel_light },
+        ScrollbarGitDelete { fg = removed },
+        ScrollbarGitDeleteHandle { fg = removed, bg = panel_light },
+
+        ---- alpha-nvim (dashboard) --------------------------------------------
+        AlphaHeader { fg = keyword },
+        AlphaButtons { fg = fg },
+        AlphaShortcut { fg = method },
+        AlphaFooter { fg = fg_dim, gui = it },
+
+        ---- grug-far ----------------------------------------------------------
+        GrugFarHelpHeader { fg = fg_dim },
+        GrugFarHelpHeaderKey { fg = method },
+        GrugFarInputLabel { fg = link, gui = bf },
+        GrugFarInputPlaceholder { fg = fg_dim, gui = it },
+        GrugFarResultsHeader { fg = fg_dim },
+        GrugFarResultsPath { fg = link, gui = un },
+        GrugFarResultsLineNo { fg = fg_gutter },
+        GrugFarResultsMatch { fg = fg, bg = search },
+        GrugFarResultsMatchAdded { fg = added },
+        GrugFarResultsMatchRemoved { fg = removed, gui = st },
+        GrugFarResultsStats { fg = fg_dim },
+
+        ---- lazy.nvim / mason -------------------------------------------------
+        LazyNormal { fg = fg, bg = panel },
+        LazyButton { fg = fg, bg = panel_light },
+        LazyButtonActive { fg = bg, bg = method, gui = bf },
+        LazyH1 { fg = bg, bg = method, gui = bf },
+        LazyH2 { fg = method, gui = bf },
+        LazyProgressDone { fg = added, gui = bf },
+        LazyProgressTodo { fg = fg_dim },
+        LazySpecial { fg = link },
+        LazyCommit { fg = doc },
+        LazyReasonPlugin { fg = field },
+        MasonNormal { fg = fg, bg = panel },
+        MasonHeader { fg = bg, bg = method, gui = bf },
+        MasonHeaderSecondary { fg = bg, bg = field, gui = bf },
+        MasonHighlight { fg = link },
+        MasonHighlightBlock { fg = bg, bg = link },
+        MasonHighlightBlockBold { fg = bg, bg = link, gui = bf },
+        MasonMuted { fg = fg_dim },
+        MasonMutedBlock { fg = fg, bg = panel_light },
+        MasonError { fg = err },
+
+        ---- copilot / inline suggestions --------------------------------------
+        CopilotSuggestion { fg = fg_dim, gui = it },
+        CopilotAnnotation { fg = fg_dim, gui = it },
     }
 end)
+---@diagnostic enable: undefined-global

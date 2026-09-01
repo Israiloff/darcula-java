@@ -1,3 +1,7 @@
-README.md
+# lush.nvim template leftovers
 colors/lush_template.lua
 lua/lush_theme/lush_template.lua
+
+# editor / OS noise
+doc/tags
+.DS_Store
