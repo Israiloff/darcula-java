@@ -103,6 +103,26 @@ require('lualine').setup({
 })
 ```
 
+### Transparency
+
+Set the flag before the scheme loads and every surface is handed back to the
+terminal, so whatever is behind it — a wallpaper, a blurred desktop — shows
+through:
+
+```lua
+vim.g.darcula_java_transparent = true
+vim.cmd.colorscheme('darcula-java')
+```
+
+That covers the editor background, the gutter, popups and floats, the
+statusline, the tabline and the tool-window panels. Accents keep their fill on
+purpose: the caret row, the selection, search and diff highlights and the raised
+panel behind the selected tab are what is left to tell one region from another
+once the surfaces are gone.
+
+Toggling it means setting the flag and loading the scheme again —
+`vim.cmd.colorscheme('darcula-java')` rebuilds the highlights from scratch.
+
 ---
 
 ## What is covered
