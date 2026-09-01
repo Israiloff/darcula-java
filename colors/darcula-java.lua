@@ -73,6 +73,28 @@ if vim.g.darcula_java_transparent then
             vim.api.nvim_set_hl(0, name, definition)
         end
     end
+
+    --  A few groups use the raised panel colour as a surface rather than as an
+    --  accent: Telescope's prompt is a box you type into, not a marker. Colour
+    --  cannot tell them apart — the same value marks the selected tab, which
+    --  has to keep its fill — so they are named.
+    for _, name in ipairs({
+        'TelescopeTitle',
+        'TelescopePromptNormal',
+        'TelescopePromptBorder',
+        'TelescopePromptPrefix',
+        'TelescopePromptCounter',
+    }) do
+        local definition = vim.api.nvim_get_hl(0, { name = name, link = false })
+        definition.bg = nil
+        definition.ctermbg = nil
+        vim.api.nvim_set_hl(0, name, definition)
+    end
+
+    --  The prompt border was painted in the box's own fill so that it vanished
+    --  into it. With the box gone it has to go back to being a border, or the
+    --  prompt loses its outline and floats loose over the wallpaper.
+    vim.api.nvim_set_hl(0, 'TelescopePromptBorder', { fg = p.border })
 end
 
 -- ─── Terminal palette (IDEA's Darcula console colours) ─────────────────────
