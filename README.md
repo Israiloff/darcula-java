@@ -115,7 +115,9 @@ vim.cmd.colorscheme('darcula-java')
 ```
 
 That covers the editor background, the gutter, popups and floats, the
-statusline, the tabline and the tool-window panels. Accents keep their fill on
+statusline — the lualine theme reads the same flag, so its sections go with it,
+keeping only the mode block that carries information in its colour — the tabline
+and the tool-window panels. Accents keep their fill on
 purpose: the caret row, the selection, search and diff highlights and the raised
 panel behind the selected tab are what is left to tell one region from another
 once the surfaces are gone.
