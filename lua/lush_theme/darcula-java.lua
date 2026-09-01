@@ -496,6 +496,15 @@ return lush(function(injected_functions)
         TelescopeSelection { fg = fg, bg = sel_soft },
         TelescopeSelectionCaret { fg = method, bg = sel_soft },
         TelescopeMultiSelection { fg = field, bg = panel },
+        --  Telescope leaves these linked to the `Diff*` groups, which are meant
+        --  to fill a whole changed line. In a picker they mark a single status
+        --  character, and the fill turns into a coloured block sitting in the
+        --  middle of the results. The status reads better as the colour of the
+        --  character itself, and matches what the tree shows for the same file.
+        TelescopeResultsDiffAdd { fg = added },
+        TelescopeResultsDiffChange { fg = changed },
+        TelescopeResultsDiffDelete { fg = removed },
+        TelescopeResultsDiffUntracked { fg = err },
         TelescopeMultiIcon { fg = method },
         TelescopeMatching { fg = link, gui = bf },
 
@@ -529,19 +538,27 @@ return lush(function(injected_functions)
         NvimTreeLiveFilterPrefix { fg = method, gui = bf },
         NvimTreeLiveFilterValue { fg = fg, gui = bf },
         NvimTreeWindowPicker { fg = bg, bg = method, gui = bf },
-        NvimTreeGitNewIcon { fg = added },
+        --  IDEA's file statuses, and the distinction it makes that matters most
+        --  in a tree: a file git has never heard of is red — the reason a fresh
+        --  checkout of somebody else's work shows up scarlet — and one that has
+        --  been added to the index is green. Both are "new"; only one of them
+        --  would survive a commit, so they cannot share a colour.
+        --
+        --  Deleted moves to the dim grey IDEA greys removals out with, which
+        --  also leaves the red meaning one thing.
+        NvimTreeGitNewIcon { fg = err },
         NvimTreeGitDirtyIcon { fg = changed },
         NvimTreeGitStagedIcon { fg = added },
         NvimTreeGitMergeIcon { fg = warn },
         NvimTreeGitRenamedIcon { fg = changed },
-        NvimTreeGitDeletedIcon { fg = removed },
+        NvimTreeGitDeletedIcon { fg = fg_dim, gui = st },
         NvimTreeGitIgnoredIcon { fg = fg_dim },
-        NvimTreeGitFileNewHL { fg = added },
+        NvimTreeGitFileNewHL { fg = err },
         NvimTreeGitFileDirtyHL { fg = changed },
         NvimTreeGitFileStagedHL { fg = added },
         NvimTreeGitFileMergeHL { fg = warn },
         NvimTreeGitFileRenamedHL { fg = changed },
-        NvimTreeGitFileDeletedHL { fg = removed },
+        NvimTreeGitFileDeletedHL { fg = fg_dim, gui = st },
         NvimTreeGitFileIgnoredHL { fg = fg_dim },
 
         ---- lir.nvim ----------------------------------------------------------

@@ -78,13 +78,26 @@ if vim.g.darcula_java_transparent then
     --  accent: Telescope's prompt is a box you type into, not a marker. Colour
     --  cannot tell them apart — the same value marks the selected tab, which
     --  has to keep its fill — so they are named.
-    for _, name in ipairs({
+    --  The selected buffer's tab is the other one. Its fill covers the label,
+    --  the indicator and the close button, but the file-type icon is generated
+    --  by bufferline from the devicon and never gets it, so a coloured tab has
+    --  a transparent hole punched in it. Marking the tab is left to the things
+    --  that already do it: the indicator bar, the bold label and the icon.
+    local raised_surfaces = {
         'TelescopeTitle',
         'TelescopePromptNormal',
         'TelescopePromptBorder',
         'TelescopePromptPrefix',
         'TelescopePromptCounter',
-    }) do
+    }
+
+    for _, name in ipairs(vim.fn.getcompletion('BufferLine', 'highlight')) do
+        if name:match('Selected$') then
+            table.insert(raised_surfaces, name)
+        end
+    end
+
+    for _, name in ipairs(raised_surfaces) do
         local definition = vim.api.nvim_get_hl(0, { name = name, link = false })
         definition.bg = nil
         definition.ctermbg = nil
